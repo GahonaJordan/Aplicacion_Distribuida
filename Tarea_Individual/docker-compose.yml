@@ -13,6 +13,12 @@ services:
       - sql_data:/var/opt/mssql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong!Passw0rd", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   api:
     build:
@@ -24,7 +30,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MiApiDB;User=sa;Password=1234;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MiApiDB;User=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
       - ASPNETCORE_URLS=http://+:8080
       - ASPNETCORE_ENVIRONMENT=Development
     networks:

@@ -38,6 +38,10 @@ namespace MiApiCrud.Controllers
         [HttpPost]
         public async Task<ActionResult<Producto>> PostProducto(Producto producto)
         {
+            // Evitar que el cliente inserte un Id explícito en la columna identity.
+            // Si el cliente envía un Id distinto de 0, lo forzamos a 0 para que la DB genere el valor.
+            producto.Id = 0;
+
             _context.Productos.Add(producto);
             await _context.SaveChangesAsync();
 
