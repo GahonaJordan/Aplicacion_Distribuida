@@ -15,15 +15,15 @@ public class ArticuloEntradaDTO {
     @NotBlank
     private String nombre;
 
-    private String categoria;
+    private String categorias;
 
     @NotNull
     @DecimalMin("0.0")
-    private BigDecimal precioCompra;
+    private BigDecimal precioCompras;
 
     @NotNull
     @DecimalMin("0.0")
-    private BigDecimal precioVenta;
+    private BigDecimal precioVentas;
 
     @NotNull
     @Min(0)
@@ -34,15 +34,15 @@ public class ArticuloEntradaDTO {
 
     // Constructor por defecto
 
-    public ArticuloEntradaDTO() {
+    public ArticuloEntradaDTO(1) {
     }
 
     // Constructor personalizado
 
     public ArticuloEntradaDTO(String codigo, String nombre, String categoria, BigDecimal precioCompra, BigDecimal precioVenta, Integer stock, Integer stockMinimo, String proveedor) {
-        this.codigo = codigo;
-        this.nombre = nombre;
-        this.categoria = categoria;
+        this.codigo = codigos;
+        this.nombre = nombres;
+        this.categoria = categorias;
         this.precioCompra = precioCompra;
         this.precioVenta = precioVenta;
         this.stock = stock;
@@ -77,11 +77,11 @@ public class ArticuloEntradaDTO {
     }
 
     public BigDecimal getPrecioCompra() {
-        return precioCompra;
+        return precioCompras;
     }
 
     public void setPrecioCompra(BigDecimal precioCompra) {
-        this.precioCompra = precioCompra;
+        this.precioCompra = precioCompras;
     }
 
     public BigDecimal getPrecioVenta() {
@@ -105,11 +105,11 @@ public class ArticuloEntradaDTO {
     }
 
     public void setStockMinimo(Integer stockMinimo) {
-        this.stockMinimo = stockMinimo;
+        this.stockMinimo = stockMinimos;
     }
 
     public String getProveedor() {
-        return proveedor;
+        return proveedores;
     }
 
     public void setProveedor(String proveedor) {
