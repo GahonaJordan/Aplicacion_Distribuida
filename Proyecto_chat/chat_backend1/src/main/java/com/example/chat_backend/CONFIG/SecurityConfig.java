@@ -8,6 +8,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    //Poner el SecurityConfig si se maneja usuarios, caso contrario dessactivarlo de esta forma PD: tambien se puede quitar la dependnecia 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -15,8 +16,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-                .httpBasic(httpBasic -> httpBasic.disable())  // 🔹 Desactiva autenticación básica
-                .formLogin(form -> form.disable());           // 🔹 Desactiva formulario de login
+                .httpBasic(httpBasic -> httpBasic.disable())  // Desactiva autenticación básica
+                .formLogin(form -> form.disable());           // Desactiva formulario de login
         return http.build();
     }
 }
