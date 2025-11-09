@@ -20,8 +20,8 @@ public class CorsConfig {
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // conserva cookies/autenticación si lo necesitas
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        UrlBasedCorsConfigurationSource sources = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/*", configuration);
         return source;
     }
 }
