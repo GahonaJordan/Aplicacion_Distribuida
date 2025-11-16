@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Artículos (SOAP)</title>
+
+  <!-- Fuente profesional y moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Gestión de Artículos</h1>
+      <p class="subtitle">Panel de administración SOAP & REST</p>
+    </header>
+
+    <div class="actions-container">
+      <button class="btn btn-primary" onclick="mostrarFormularioCrear()">➕ Crear Nuevo Artículo</button>
+      <button class="btn btn-secondary" onclick="cargarTodo()">🔄 Recargar Todo</button>
+    </div>
+
+    <div class="search-container">
+      <input type="text" id="codigoBuscar" placeholder="Buscar artículo por código..." />
+      <button class="btn btn-search" onclick="buscarArticuloSOAP()">Buscar (SOAP)</button>
+      <button class="btn btn-outline" onclick="loadArticulosREST()">Listar Todos (REST)</button>
+    </div>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Cargando artículos...</p>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <!-- Formulario -->
+    <div id="formularioArticulo" class="card hidden">
+      <h3 id="tituloFormulario">Crear Nuevo Artículo</h3>
+      <form id="articuloForm" onsubmit="guardarArticulo(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="codigo">Código:</label>
+            <input type="text" id="codigo" name="codigo" required />
+          </div>
+          <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="categoria">Categoría:</label>
+            <input type="text" id="categoria" name="categoria" />
+          </div>
+          <div class="form-group">
+            <label for="proveedor">Proveedor:</label>
+            <input type="text" id="proveedor" name="proveedor" />
+          </div>
+          <div class="form-group">
+            <label for="precioCompra">Precio Compra:</label>
+            <input type="number" id="precioCompra" name="precioCompra" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="precioVenta">Precio Venta:</label>
+            <input type="number" id="precioVenta" name="precioVenta" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" name="stock" value="0" />
+          </div>
+          <div class="form-group">
+            <label for="stockMinimo">Stock Mínimo:</label>
+            <input type="number" id="stockMinimo" name="stockMinimo" value="0" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Guardar</button>
+          <button type="button" class="btn btn-danger" onclick="ocultarFormulario()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="tablaArticulos">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio Compra</th>
+            <th>Precio Venta</th>
+            <th>Stock</th>
+            <th>Stock Mínimo</th>
+            <th>Proveedor</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
