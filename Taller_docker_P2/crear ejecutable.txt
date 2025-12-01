@@ -1,0 +1,26 @@
+//limpiamos paquetes
+.\mvnw.cmd clean package -DskipTests
+
+//entramos en el target pero en este caso no es necesario
+cd .\target\
+
+//creamos la red
+docker network create product-net
+
+//asociamos la base con la red
+docker network connect product-net mysql-productdb
+
+//verificamos
+docker inspect mysql-productdb
+
+//construimos la imagen del back
+docker build -t gahona-product:latest .
+
+//ejecutamos el contenedor
+docker run --name gahona-product-container --network product-net -p 9091:9091 gahona-product:latest
+
+
+
+
+
+

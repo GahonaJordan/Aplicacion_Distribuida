@@ -1,0 +1,9 @@
+docker run --name mysql-productdb -e MYSQL_ROOT_PASSWORD=rootpass -e MYSQL_DATABASE=productdb -e MYSQL_USER=AppRoot -e MYSQL_PASSWORD=abcd -p 3306:3306 -d mysql:8.0
+
+//verificar
+docker ps
+
+//para conectar por workbench
+spring.datasource.url=jdbc:mysql://localhost:3306/productdb
+spring.datasource.username=AppRoot
+spring.datasource.password=abcd
