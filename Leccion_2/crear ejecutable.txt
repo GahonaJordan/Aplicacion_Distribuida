@@ -1,0 +1,26 @@
+//limpiamos paquetes
+.\mvnw.cmd clean package -DskipTests
+
+//entramos en el target pero en este caso no es necesario
+cd .\target\
+
+//creamos la red
+docker network create ticket-net
+
+//asociamos la base con la red
+docker network connect ticket-net mysql_tickets
+
+//verificamos
+docker inspect mysql_tickets
+
+//construimos la imagen del back
+docker build -t gahona-ticket:latest .
+
+//ejecutamos el contenedor
+docker run --name gahona-ticket-container --network ticket-net -p 9090:9090 gahona-ticket:latest
+
+
+
+
+
+
