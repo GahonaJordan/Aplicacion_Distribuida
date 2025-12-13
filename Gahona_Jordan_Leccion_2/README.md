@@ -1,4 +1,8 @@
-Requisitos del entorno
+================================================= Requisitos del entorno ========================================
+- Ejecutar el docker compone para crear la base de datos de mysql.
+- luego ejecutar los comandos de la "Construcción de imagen Docker" para poner los contenedores en la misma red.
+- luego ejecutar los comandos para "Comando para ejecutar contenedor" ya esta puesta en la red creada y el puerto deseado.
+- en postman ejecutar cada uno de los links para pruebas, el primer link es el unico post, los demas son get
 
 ==================================================== Construcción de imagen Docker ===========================================
 
