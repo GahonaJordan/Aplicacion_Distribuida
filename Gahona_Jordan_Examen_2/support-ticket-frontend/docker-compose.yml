@@ -1,0 +1,18 @@
+services:
+  frontend:
+    container_name: gahona_jordan_ticket_front
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: http://host.docker.internal:9090
+    image: support-ticket-frontend:latest
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - ticket-net
+
+networks:
+  ticket-net:
+    external: true
