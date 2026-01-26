@@ -1,0 +1,16 @@
+# Crear proyecto con Vite (más rápido que create-react-app)
+npm create vite@latest inventory-frontend -- --template react
+
+# Entrar a la carpeta
+cd inventory-frontend
+
+# Instalar dependencias
+npm install
+
+# Instalar bibliotecas adicionales que necesitaremos
+npm install axios react-router-dom lucide-react
+
+# Correr el front
+npm run dev
+```
+

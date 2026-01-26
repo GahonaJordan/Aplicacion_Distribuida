@@ -1,0 +1,12 @@
+//iniciar sesión
+docker login
+
+//ver imágenes
+docker images
+
+//renombrar imagen a subir
+docker tag gahona-ticket:latest jrgahona/gahona-ticket:latest
+
+//hacemos el push
+docker push jrgahona/gahona-ticket:latest
+

@@ -1,0 +1,204 @@
+version: '3.8'
+
+services:
+  # ==================== BASES DE DATOS ====================
+  
+  # MySQL para microservicios
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: producto_service_db
+      MYSQL_USER: approot
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "approot", "-p1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+  # PostgreSQL para OAuth Server
+  postgres-oauth-db:
+    image: postgres:16-alpine
+    container_name: postgres-oauth-db
+    environment:
+      POSTGRES_DB: oauth_server_db
+      POSTGRES_USER: approot
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-oauth-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U approot -d oauth_server_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== API GATEWAY ====================
+  
+  api-gateway:
+    build:
+      context: ./gatway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      OAUTH_ISSUER_URI: http://oauth-server:9000
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      oauth-server:
+        condition: service_started
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+  # ==================== OAUTH SERVER ====================
+  
+  oauth-server:
+    build:
+      context: ./oauth-server
+      dockerfile: Dockerfile
+    container_name: oauth-server
+    ports:
+      - "9000:9000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-oauth-db:5432/oauth_server_db
+      SPRING_DATASOURCE_USERNAME: approot
+      SPRING_DATASOURCE_PASSWORD: 1234
+    depends_on:
+      postgres-oauth-db:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+  # ==================== MICROSERVICIOS ====================
+  
+  producto-service:
+    build:
+      context: ./producto-service
+      dockerfile: Dockerfile
+    container_name: producto-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/producto_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: approot
+      SPRING_DATASOURCE_PASSWORD: 1234
+      OAUTH_ISSUER_URI: http://oauth-server:9000
+    ports:
+      - "9090:9090"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+  inventario-service:
+    build:
+      context: ./inventario-service
+      dockerfile: Dockerfile
+    container_name: inventario-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/inventario_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: approot
+      SPRING_DATASOURCE_PASSWORD: 1234
+      OAUTH_ISSUER_URI: http://oauth-server:9000
+    ports:
+      - "9092:9092"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+  proveedor-service:
+    build:
+      context: ./proveedor-service
+      dockerfile: Dockerfile
+    container_name: proveedor-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/proveedor_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: approot
+      SPRING_DATASOURCE_PASSWORD: 1234
+      OAUTH_ISSUER_URI: http://oauth-server:9000
+    ports:
+      - "9091:9091"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+  ordenes-service:
+    build:
+      context: ./ordenes-service
+      dockerfile: Dockerfile
+    container_name: ordenes-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/ordenes_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: approot
+      OAUTH_ISSUER_URI: http://oauth-server:9000
+      SPRING_DATASOURCE_PASSWORD: 1234
+      PRODUCTO_SERVICE_URL: http://producto-service:9090
+      PROVEEDOR_SERVICE_URL: http://proveedor-service:9091
+      INVENTARIO_SERVICE_URL: http://inventario-service:9092
+    ports:
+      - "9093:9093"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      producto-service:
+        condition: service_started
+      proveedor-service:
+        condition: service_started
+      inventario-service:
+        condition: service_started
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+  # ==================== FRONTEND ====================
+  
+  frontend:
+    build:
+      context: ./front/inventory-frontend
+      dockerfile: Dockerfile
+    container_name: inventory-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - inventory-network
+    restart: unless-stopped
+
+# ==================== VOLUMES ====================
+
+volumes:
+  mysql-data:
+    driver: local
+  postgres-oauth-data:
+    driver: local
+
+# ==================== NETWORKS ====================
+
+networks:
+  inventory-network:
+    driver: bridge

@@ -1,0 +1,62 @@
+package com.example.producto_service.config;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+    private final JwtGrantedAuthoritiesConverter defaultGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
+    @Override
+    public AbstractAuthenticationToken convert(Jwt jwt) {
+        Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
+        return new JwtAuthenticationToken(jwt, authorities);
+    }
+
+    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+        // Obtener autoridades del scope (del converter por defecto)
+        authorities.addAll(defaultGrantedAuthoritiesConverter.convert(jwt));
+
+        // Extraer roles del JWT
+        List<String> roles = jwt.getClaimAsStringList("roles");
+        System.out.println("=== JwtAuthenticationConverter ===");
+        System.out.println("Username: " + jwt.getSubject());
+        System.out.println("Roles from JWT: " + roles);
+        
+        if (roles != null) {
+            authorities.addAll(
+                    roles.stream()
+                            .map(role -> {
+                                // Los roles ya vienen con ROLE_ del servidor OAuth
+                                // Solo agregamos si no tienen el prefijo
+                                if (!role.startsWith("ROLE_")) {
+                                    return "ROLE_" + role;
+                                }
+                                return role;
+                            })
+                            .map(role -> {
+                                System.out.println("Adding authority: " + role);
+                                return new SimpleGrantedAuthority(role);
+                            })
+                            .collect(Collectors.toList())
+            );
+        }
+        
+        System.out.println("Final authorities: " + authorities);
+        System.out.println("================================");
+
+        return authorities;
+    }
+}

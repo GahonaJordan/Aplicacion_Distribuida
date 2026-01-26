@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: oauth-server
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:9000
+      client:
+        registration:
+          category:
+            provider: oauth-server
+            client-id: category
+            client-secret: 123456
+            authorization-grant-type: authorization_code
+            redirect-uri: http://127.0.0.1:8002/authorized
+            client-name: category
+            scope: openid,profile,read,write
+        provider:
+          oauth-server:
+            issuer-uri: http://127.0.0.1:9000
+
+server:
+  port: 9000
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2: TRACE

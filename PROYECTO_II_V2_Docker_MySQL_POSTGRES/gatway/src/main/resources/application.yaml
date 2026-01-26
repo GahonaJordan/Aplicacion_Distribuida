@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # Producto Service
+        - id: producto-service
+          uri: http://producto-service:9090
+          predicates:
+            - Path=/api/productos/**
+        
+        # Proveedor Service
+        - id: proveedor-service
+          uri: http://proveedor-service:9091
+          predicates:
+            - Path=/api/proveedores/**
+        
+        # Inventario Service
+        - id: inventario-service
+          uri: http://inventario-service:9092
+          predicates:
+            - Path=/api/inventarios/**
+        
+        # Bodegas Service (parte de inventario)
+        - id: bodegas-service
+          uri: http://inventario-service:9092
+          predicates:
+            - Path=/api/bodegas/**
+        
+        # Ordenes Service
+        - id: ordenes-service
+          uri: http://ordenes-service:9093
+          predicates:
+            - Path=/api/ordenes-compra/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH_ISSUER_URI:http://oauth-server:9000}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
